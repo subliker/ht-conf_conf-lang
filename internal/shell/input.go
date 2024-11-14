@@ -4,10 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strings"
 )
 
-func (sh *Shell) ParseInput(ch chan []string) {
+func (sh *Shell) ParseInput(ch chan string) {
 	defer close(ch)
 
 	// open input file
@@ -20,6 +19,6 @@ func (sh *Shell) ParseInput(ch chan []string) {
 	scanner := bufio.NewScanner(f)
 
 	for scanner.Scan() {
-		ch <- strings.Split(scanner.Text(), " ")
+		ch <- scanner.Text()
 	}
 }

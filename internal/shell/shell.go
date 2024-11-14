@@ -24,12 +24,12 @@ func New() *Shell {
 
 // Run starts shell
 func (sh *Shell) Run() {
-	splitLineChan := make(chan []string)
+	lineChan := make(chan string)
 
-	go sh.ParseInput(splitLineChan)
+	go sh.ParseInput(lineChan)
 
-	for splitLine := range splitLineChan {
-		sh.converter.ParseLine(splitLine)
+	for line := range lineChan {
+		sh.converter.ParseLine(line)
 	}
 	fmt.Print("ready")
 }

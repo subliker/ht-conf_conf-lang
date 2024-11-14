@@ -3,7 +3,8 @@ package converter
 import "fmt"
 
 type Converter struct {
-	vars map[string]interface{}
+	vars     map[string]interface{}
+	handlers []func(string) bool
 }
 
 func New() *Converter {
@@ -11,13 +12,24 @@ func New() *Converter {
 
 	c.vars = make(map[string]interface{})
 
+	c.handlers = append(c.handlers, c.HandlerRem)
 	return &c
 }
 
-func (c *Converter) ParseLine(splitLine []string) {
-	if len(splitLine)
+func (c *Converter) Vars() map[string]interface{} {
+	return c.vars
+}
 
-	switch{
-
+func (c *Converter) ParseLine(line string) {
+	lenLine := len(line)
+	if lenLine == 0 {
+		return
 	}
+
+	for _, handler := range c.handlers {
+		if ok := handler(line); ok {
+			return
+		}
+	}
+	panic(fmt.Errorf("error in line: %s", line))
 }
