@@ -8,7 +8,7 @@ import (
 
 func TestHandlerRem(t *testing.T) {
 	assert := assert.New(t)
-	c := New()
+	c := New(".nya")
 
 	assert.Equal(c.HandlerRem("REM this is comment!"), true)
 	assert.Equal(c.HandlerRem(""), true)
@@ -17,7 +17,7 @@ func TestHandlerRem(t *testing.T) {
 
 func TestHandleValue(t *testing.T) {
 	assert := assert.New(t)
-	c := New()
+	c := New(".nya")
 
 	assert.Equal(true, c.HandleValue("var a = 1"))
 	assert.Equal(1, c.Vars()["a"])

@@ -3,6 +3,7 @@ package converter
 import (
 	"errors"
 	"fmt"
+	"io"
 	"regexp"
 	"strconv"
 	"strings"
@@ -11,10 +12,12 @@ import (
 var (
 	varDeclRegex = regexp.MustCompile("^var ([a-zA-Z_][a-zA-Z0-9_]*) = (.+?)$")
 	listRegex    = regexp.MustCompile(`^list\((?:\s?\d\,?)+\)$`)
+	expRegex     = regexp.MustCompile(`^\.\[.+\]\.$`)
 )
 
 func (c *Converter) HandlerRem(line string) bool {
 	if strings.HasPrefix(line, "REM") || line == "" {
+		fmt.Println(c.f, "# %s\n", strings.TrimSpace(strings.TrimPrefix(line, "REM")))
 		fmt.Fprintf(c.f, "# %s\n", strings.TrimSpace(strings.TrimPrefix(line, "REM")))
 		return true
 	}
@@ -28,7 +31,6 @@ func (c *Converter) HandleValue(line string) bool {
 		value := ss[2]
 		parsedValue, err := c.ParseValue(value)
 		if err != nil {
-			fmt.Print(err)
 			return false
 		}
 		c.vars[name] = parsedValue
@@ -38,7 +40,7 @@ func (c *Converter) HandleValue(line string) bool {
 			panic(1)
 		}
 
-		fmt.Fprintf(c.f, "%s=%s\n", name, strVal)
+		io.WriteString(c.f, fmt.Sprintf("%s=%s\n", name, strVal))
 		return true
 	}
 	return false
@@ -67,6 +69,61 @@ func valToStr(val interface{}) (string, error) {
 }
 
 func (c *Converter) ParseValue(value string) (interface{}, error) {
+	if ss := expRegex.FindStringSubmatch(value); ss != nil {
+		str := strings.TrimPrefix(strings.TrimSuffix(value, "]."), ".[")
+		items := strings.Split(str, " ")
+		if len(items) > 3 || len(items) < 1 {
+			return nil, errors.New("incorrect exp")
+		}
+
+		aStr := items[0]
+
+		if len(items) < 3 {
+			aV, ok := c.vars[aStr]
+			if !ok {
+				return nil, errors.New("incorrect var")
+			}
+			if len(items) == 1 {
+				return aV, nil
+			}
+			switch v := aV.(type) {
+			case []interface{}:
+				if items[1] == "len()" {
+					return len(v), nil
+				}
+				return nil, errors.New("incorrect var")
+			}
+		}
+		aV, ok := c.vars[aStr]
+		if !ok {
+			pv, err := c.ParseSingleValue(aStr)
+			if err != nil {
+				return nil, errors.New("incorrect var")
+			}
+			aV = pv
+		}
+
+		bStr := items[1]
+		bV, ok := c.vars[bStr]
+		if !ok {
+			pv, err := c.ParseSingleValue(bStr)
+			if err != nil {
+				return nil, errors.New("incorrect var")
+			}
+			bV = pv
+		}
+
+		switch items[2] {
+		case "+":
+			return aV.(int) + bV.(int), nil
+		case "-":
+			return aV.(int) - bV.(int), nil
+		case "*":
+			return aV.(int) * bV.(int), nil
+		default:
+			return nil, errors.New("incorrect vars")
+		}
+	}
 	if ss := listRegex.FindStringSubmatch(value); ss != nil {
 		itemsStr := strings.TrimPrefix(strings.TrimSuffix(value, ")"), "list(")
 		items := strings.Split(itemsStr, ",")
