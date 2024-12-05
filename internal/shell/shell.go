@@ -14,7 +14,7 @@ type Shell struct {
 
 // New creates new instance of Shell
 func New() *Shell {
-	c := converter.New()
+	c := converter.New(_outputPath)
 	return &Shell{
 		input:     _inputPath,
 		output:    _outputPath,

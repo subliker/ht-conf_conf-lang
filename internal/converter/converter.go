@@ -1,18 +1,29 @@
 package converter
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 type Converter struct {
 	vars     map[string]interface{}
 	handlers []func(string) bool
+
+	f *os.File
 }
 
-func New() *Converter {
+func New(outputPath string) *Converter {
 	var c Converter
+
+	f, err := os.OpenFile(outputPath, os.O_CREATE|os.O_RDWR, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+	c.f = f
 
 	c.vars = make(map[string]interface{})
 
-	c.handlers = append(c.handlers, c.HandlerRem)
+	c.handlers = append(c.handlers, c.HandlerRem, c.HandleValue)
 	return &c
 }
 
