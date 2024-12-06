@@ -17,7 +17,6 @@ var (
 
 func (c *Converter) HandlerRem(line string) bool {
 	if strings.HasPrefix(line, "REM") || line == "" {
-		fmt.Println(c.f, "# %s\n", strings.TrimSpace(strings.TrimPrefix(line, "REM")))
 		fmt.Fprintf(c.f, "# %s\n", strings.TrimSpace(strings.TrimPrefix(line, "REM")))
 		return true
 	}
@@ -69,9 +68,10 @@ func valToStr(val interface{}) (string, error) {
 }
 
 func (c *Converter) ParseValue(value string) (interface{}, error) {
-	if ss := expRegex.FindStringSubmatch(value); ss != nil {
+	if ok := expRegex.MatchString(value); ok {
 		str := strings.TrimPrefix(strings.TrimSuffix(value, "]."), ".[")
 		items := strings.Split(str, " ")
+
 		if len(items) > 3 || len(items) < 1 {
 			return nil, errors.New("incorrect exp")
 		}
@@ -102,6 +102,9 @@ func (c *Converter) ParseValue(value string) (interface{}, error) {
 			}
 			aV = pv
 		}
+		if _, ok := aV.([]interface{}); ok {
+			return nil, errors.New("incorrect var")
+		}
 
 		bStr := items[1]
 		bV, ok := c.vars[bStr]
@@ -111,6 +114,9 @@ func (c *Converter) ParseValue(value string) (interface{}, error) {
 				return nil, errors.New("incorrect var")
 			}
 			bV = pv
+		}
+		if _, ok := bV.([]interface{}); ok {
+			return nil, errors.New("incorrect var")
 		}
 
 		switch items[2] {

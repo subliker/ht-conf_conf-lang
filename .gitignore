@@ -1,2 +1,4 @@
 *.nya
+!*.example.nya
+
 *.toml

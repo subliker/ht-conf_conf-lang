@@ -44,3 +44,7 @@ func (c *Converter) ParseLine(line string) {
 	}
 	panic(fmt.Errorf("error in line: %s", line))
 }
+
+func (c *Converter) Close() {
+	c.f.Close()
+}

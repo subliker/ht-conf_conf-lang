@@ -1,0 +1,9 @@
+REM Ниже представлены тестовые входные(если вы в toml, то уже выходные) значения
+
+var a = 1024
+var arr = list(3, 14, 15, 97, 72)
+var arrLen = .[arr len()].
+var sumAAndArrLen = .[a arrLen +].
+var c = .[sumAAndArrLen sumAAndArrLen *].
+var d = .[a sumAAndArrLen -].
+var e = .[a 2 *].
