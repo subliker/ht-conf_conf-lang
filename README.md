@@ -32,4 +32,30 @@ var имя = значение
 
 Запуск: `go run cmd/nya/main.go {-input <входной файл> -output <выходной файл>}`
 
-Использование
+Использование:
+![image](https://github.com/user-attachments/assets/bf87e444-2f7e-4c70-a54f-5de444e82274)
+
+Пример входных данных:
+```
+REM Ниже представлены тестовые входные(если вы в toml, то уже выходные) значения
+
+var a = 1024
+var arr = list(3, 14, 15, 97, 72)
+var arrLen = .[arr len()].
+var sumAAndArrLen = .[a arrLen +].
+var c = .[sumAAndArrLen sumAAndArrLen *].
+var d = .[a sumAAndArrLen -].
+var e = .[a 2 *].
+```
+
+Соответствующие выходные данные:
+```
+# Ниже представлены тестовые входные(если вы в toml, то уже выходные) значения
+a=1024
+arr=[3, 14, 15, 97, 72]
+arrLen=5
+sumAAndArrLen=1029
+c=1058841
+d=-5
+e=2048
+```
